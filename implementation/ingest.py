@@ -24,7 +24,10 @@ def fetch_documents():
     for folder in folders:
         doc_type = os.path.basename(folder)
         loader = DirectoryLoader(
-            folder, glob="**/*.md", loader_cls=TextLoader, loader_kwargs={"encoding": "utf-8"}
+            folder,
+            glob="**/*.md",
+            loader_cls=TextLoader,
+            loader_kwargs={"encoding": "utf-8"},
         )
         folder_docs = loader.load()
         for doc in folder_docs:
@@ -34,14 +37,23 @@ def fetch_documents():
 
 
 def create_chunks(documents):
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1200,
+        chunk_overlap=250,
+        separators=["\n## ", "\n### ", "\n#### ", "\n\n", "\n", ". ", " ", ""],
+        is_separator_regex=False,
+        length_function=len,
+        add_start_index=True
+    )
     chunks = text_splitter.split_documents(documents)
     return chunks
 
 
 def create_embeddings(chunks):
     if os.path.exists(DB_NAME):
-        Chroma(persist_directory=DB_NAME, embedding_function=embeddings).delete_collection()
+        Chroma(
+            persist_directory=DB_NAME, embedding_function=embeddings
+        ).delete_collection()
 
     vectorstore = Chroma.from_documents(
         documents=chunks, embedding=embeddings, persist_directory=DB_NAME
@@ -52,7 +64,9 @@ def create_embeddings(chunks):
 
     sample_embedding = collection.get(limit=1, include=["embeddings"])["embeddings"][0]
     dimensions = len(sample_embedding)
-    print(f"There are {count:,} vectors with {dimensions:,} dimensions in the vector store")
+    print(
+        f"There are {count:,} vectors with {dimensions:,} dimensions in the vector store"
+    )
     return vectorstore
 
 
