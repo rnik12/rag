@@ -38,8 +38,8 @@ def fetch_documents():
 
 def create_chunks(documents):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1200,
-        chunk_overlap=250,
+        chunk_size=625,
+        chunk_overlap=100,
         separators=["\n## ", "\n### ", "\n#### ", "\n\n", "\n", ". ", " ", ""],
         is_separator_regex=False,
         length_function=len,
